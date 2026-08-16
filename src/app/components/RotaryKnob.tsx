@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import type { PanelTheme } from './ThemeSelector';
+import { clampParameter } from '../model';
 
 interface RotaryKnobProps {
   label: string;
@@ -26,7 +27,7 @@ export function RotaryKnob({ label, value, onChange, min = 0, max = 100, theme, 
     return () => window.clearTimeout(timer);
   }, [value]);
 
-  const setClampedValue = (nextValue: number) => onChange(Math.max(min, Math.min(max, nextValue)));
+  const setClampedValue = (nextValue: number) => onChange(clampParameter(nextValue, min, max));
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault();

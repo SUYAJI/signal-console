@@ -1,7 +1,17 @@
 node_modules/
 dist/
+.envrc
 .env
 .env.*
 !.env.example
 *.local
 npm-debug.log*
+*.log
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

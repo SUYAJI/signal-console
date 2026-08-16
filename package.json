@@ -6,7 +6,11 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run test:unit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run typecheck && npm run test:unit && npm run build"
   },
   "dependencies": {
     "react": "18.3.1",
@@ -18,8 +22,10 @@
     "tailwindcss": "4.1.12",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
+    "@playwright/test": "1.62.1",
     "typescript": "5.7.3",
-    "vite": "6.4.3"
+    "vite": "6.4.3",
+    "vitest": "3.2.7"
   },
   "allowScripts": {
     "@tailwindcss/oxide@4.1.12": true,

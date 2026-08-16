@@ -4,31 +4,25 @@ import { RotaryKnob } from './components/RotaryKnob';
 import { ThemeSelector, getTheme } from './components/ThemeSelector';
 import type { PanelTheme } from './components/ThemeSelector';
 import { SignalViewport } from './components/SignalViewport';
-
-const PATTERN_ENGINES = ['DOT FIELD', 'NODE MESH', 'SCANLINE FIELD', 'ECHO TRAILS', 'TYPE DISTORTION'] as const;
-const SIGNAL_SOURCES = ['GRID', 'NOISE FIELD', 'TEXT SAMPLE', 'IMAGE INPUT'] as const;
-const HARDWARE_MODES = ['APOLLO AVIONICS', 'SOVIET RADAR', 'DIGITAL SYNTH TERMINAL'] as const;
-const PARAMETER_NAMES = ['density', 'phase', 'decay', 'frequency'] as const;
-
-type ParameterName = (typeof PARAMETER_NAMES)[number];
-type Parameters = Record<ParameterName, number>;
+import { DEFAULT_PARAMETERS, HARDWARE_MODES, isPointerReactiveEngine, PARAMETER_NAMES, PATTERN_ENGINES, SIGNAL_SOURCES, updateParameter } from './model';
+import type { HardwareMode, ParameterName, Parameters, PatternEngine, SignalSource } from './model';
 
 export default function App() {
-  const [activeModule, setActiveModule] = useState<(typeof PATTERN_ENGINES)[number]>('DOT FIELD');
-  const [inputSource, setInputSource] = useState<(typeof SIGNAL_SOURCES)[number]>('GRID');
-  const [hardwareMode, setHardwareMode] = useState<(typeof HARDWARE_MODES)[number]>('APOLLO AVIONICS');
+  const [activeModule, setActiveModule] = useState<PatternEngine>('DOT FIELD');
+  const [inputSource, setInputSource] = useState<SignalSource>('GRID');
+  const [hardwareMode, setHardwareMode] = useState<HardwareMode>('APOLLO AVIONICS');
   const [showCalibration, setShowCalibration] = useState(true);
   const [signalDrift, setSignalDrift] = useState(false);
   const [imageUrl, setImageUrl] = useState('/signal-sample.svg');
   const [themeName, setThemeName] = useState('PHOSPHOR');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
-  const [parameters, setParameters] = useState<Parameters>({ density: 50, phase: 25, decay: 40, frequency: 50 });
+  const [parameters, setParameters] = useState<Parameters>(DEFAULT_PARAMETERS);
   const theme: PanelTheme = getTheme(themeName, themeMode);
   const isLight = themeMode === 'light';
-  const isPointerReactive = activeModule === 'ECHO TRAILS' || activeModule === 'TYPE DISTORTION';
+  const isPointerReactive = isPointerReactiveEngine(activeModule);
 
   const toggleMode = useCallback(() => setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark')), []);
-  const updateParameter = useCallback((name: ParameterName, value: number) => setParameters((current) => ({ ...current, [name]: value })), []);
+  const handleParameterChange = useCallback((name: ParameterName, value: number) => setParameters((current) => updateParameter(current, name, value)), []);
 
   const getPanelStyle = () => hardwareMode === 'SOVIET RADAR'
     ? { background: theme.panelBg, boxShadow: 'inset 0 0 20px rgba(0,0,0,0.8), 0 12px 24px rgba(0,0,0,0.9)', border: `2px solid ${theme.panelBorder}`, borderRadius: '0px' }
@@ -108,7 +102,7 @@ export default function App() {
           <aside className="console-section parameters-panel" style={{ ...getSubPanelStyle() }}>
             {sectionHeading('Parameters')}
             <div className="parameter-grid">
-              {PARAMETER_NAMES.map((name) => <RotaryKnob key={name} label={name} value={parameters[name]} onChange={(value) => updateParameter(name, value)} theme={theme} hardwareMode={hardwareMode} />)}
+              {PARAMETER_NAMES.map((name) => <RotaryKnob key={name} label={name} value={parameters[name]} onChange={(value) => handleParameterChange(name, value)} theme={theme} hardwareMode={hardwareMode} />)}
             </div>
           </aside>
         </div>
