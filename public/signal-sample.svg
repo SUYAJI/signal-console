@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640" role="img" aria-labelledby="title description">
+  <title id="title">Signal Console sample field</title>
+  <desc id="description">An abstract monochrome field of circular radar waves and a grid.</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e8ffe7"/>
+      <stop offset="12%" stop-color="#75d878"/>
+      <stop offset="45%" stop-color="#103b25"/>
+      <stop offset="100%" stop-color="#020604"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#4d9b67" stroke-opacity=".32"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="640" fill="#020604"/>
+  <rect width="960" height="640" fill="url(#glow)" opacity=".82"/>
+  <rect width="960" height="640" fill="url(#grid)"/>
+  <g fill="none" stroke="#c5ffc0" stroke-opacity=".7">
+    <circle cx="480" cy="320" r="72"/>
+    <circle cx="480" cy="320" r="144"/>
+    <circle cx="480" cy="320" r="216"/>
+    <circle cx="480" cy="320" r="288"/>
+    <path d="M480 32V608M192 320H768"/>
+  </g>
+  <path d="M480 320 L808 154 A365 365 0 0 1 844 320 Z" fill="#b9ffc0" fill-opacity=".12"/>
+  <circle cx="624" cy="238" r="7" fill="#e8ffe7"/>
+  <circle cx="384" cy="434" r="5" fill="#e8ffe7"/>
+  <circle cx="743" cy="392" r="4" fill="#e8ffe7"/>
+</svg>
