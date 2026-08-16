@@ -3,8 +3,7 @@
 
 Signal Console is an interactive visual signal laboratory: a browser-based control panel for exploring procedural patterns, sources, parameters, hardware modes, and chromatic themes.
 
-**Live demo:** deployment pending.
-
+[LIVE DEMO](https://signal-console-seven.vercel.app/)
 ## Overview
 
 The console pairs tactile controls with a Canvas-rendered signal monitor. It is a self-contained front-end experiment, not a client project or production service.
