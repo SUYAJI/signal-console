@@ -19,6 +19,11 @@ export function SignalViewport({ activeModule, theme, params, inputSource = 'GRI
   const cursorHistoryRef = useRef<{ x: number; y: number; t: number }[]>([]);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const pixelDataRef = useRef<Uint8ClampedArray | null>(null);
+  const stateRef = useRef({ activeModule, theme, params, inputSource, showCalibration, hardwareMode, signalDrift });
+
+  useEffect(() => {
+    stateRef.current = { activeModule, theme, params, inputSource, showCalibration, hardwareMode, signalDrift };
+  }, [activeModule, theme, params, inputSource, showCalibration, hardwareMode, signalDrift]);
 
   useEffect(() => {
     imgRef.current = null;
@@ -60,29 +65,45 @@ export function SignalViewport({ activeModule, theme, params, inputSource = 'GRI
   }, [imageUrl]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current!;
     if (!canvas) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      if (e.pointerType !== 'mouse') e.preventDefault();
     };
-    const handleMouseLeave = () => {
+    const handlePointerDown = (e: PointerEvent) => {
+      canvas.setPointerCapture(e.pointerId);
+      handlePointerMove(e);
+    };
+    const handlePointerEnd = (e: PointerEvent) => {
+      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      if (e.pointerType !== 'mouse') mouseRef.current = { x: -1000, y: -1000 };
+    };
+    const handlePointerLeave = () => {
       mouseRef.current = { x: -1000, y: -1000 };
     };
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
+    canvas.addEventListener('pointerdown', handlePointerDown);
+    canvas.addEventListener('pointerup', handlePointerEnd);
+    canvas.addEventListener('pointercancel', handlePointerEnd);
+    canvas.addEventListener('pointerleave', handlePointerLeave);
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     const parent = canvas.parentElement;
-    if (!ctx || !parent) return;
+    if (!parent) return;
     let running = true;
-    let animationFrame = 0;
+    let animationFrame: number | null = null;
     let devicePixelRatio = window.devicePixelRatio || 1;
+    let pageVisible = !document.hidden;
+    let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let lastDrawAt = 0;
 
     const resize = () => {
       const rect = parent.getBoundingClientRect();
-      devicePixelRatio = window.devicePixelRatio || 1;
+      const dprCap = reducedMotion ? 1 : window.matchMedia('(max-width: 768px)').matches ? 1.5 : 2;
+      devicePixelRatio = Math.min(window.devicePixelRatio || 1, dprCap);
       canvas.width = Math.round(rect.width * devicePixelRatio);
       canvas.height = Math.round(rect.height * devicePixelRatio);
     };
@@ -91,11 +112,37 @@ export function SignalViewport({ activeModule, theme, params, inputSource = 'GRI
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(parent);
 
-    const draw = () => {
-      if (!running) return;
+    const scheduleDraw = () => {
+      if (running && pageVisible && animationFrame === null) {
+        animationFrame = requestAnimationFrame(draw);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      pageVisible = !document.hidden;
+      if (pageVisible) scheduleDraw();
+    };
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleMotionChange = (event: MediaQueryListEvent) => {
+      reducedMotion = event.matches;
+      resize();
+      scheduleDraw();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    motionQuery.addEventListener('change', handleMotionChange);
+
+    function draw(timestamp: number) {
+      animationFrame = null;
+      if (!running || !pageVisible) return;
+      if (reducedMotion && timestamp - lastDrawAt < 80) {
+        scheduleDraw();
+        return;
+      }
+      lastDrawAt = timestamp;
+      const { activeModule, theme, params, inputSource, showCalibration, hardwareMode, signalDrift } = stateRef.current;
       const w = canvas.width / devicePixelRatio;
       const h = canvas.height / devicePixelRatio;
-      timeRef.current += 0.016;
+      timeRef.current += reducedMotion ? 0.008 : 0.016;
       const t = timeRef.current;
 
       const getBrightness = (x: number, y: number): number => {
@@ -413,7 +460,8 @@ SIGNAL: ACQUIRING
           
           const alpha = Math.max(0, 1 - progress);
           const b = getBrightness(pt.x, pt.y);
-          let radius = 8 + progress * (20 + (params.phase / 100) * 40); // PHASE adds size expansion
+          const pulse = Math.sin(t * freq * 2 + i * 0.7) * (1 + freq * 1.5);
+          let radius = 8 + progress * (20 + (params.phase / 100) * 40) + pulse; // PHASE expands echoes; FREQUENCY controls their pulse rate
           if (inputSource === 'IMAGE INPUT') radius *= (b * 1.5 + 0.2);
           
           // Draw Outer Ring
@@ -610,25 +658,32 @@ SIGNAL: ACQUIRING
       
       ctx.restore();
 
-      animationFrame = requestAnimationFrame(draw);
-    };
+      scheduleDraw();
+    }
 
-    animationFrame = requestAnimationFrame(draw);
+    scheduleDraw();
 
     return () => {
       running = false;
-      cancelAnimationFrame(animationFrame);
+      if (animationFrame !== null) cancelAnimationFrame(animationFrame);
       window.removeEventListener('resize', resize);
       resizeObserver.disconnect();
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      motionQuery.removeEventListener('change', handleMotionChange);
+      canvas.removeEventListener('pointermove', handlePointerMove);
+      canvas.removeEventListener('pointerdown', handlePointerDown);
+      canvas.removeEventListener('pointerup', handlePointerEnd);
+      canvas.removeEventListener('pointercancel', handlePointerEnd);
+      canvas.removeEventListener('pointerleave', handlePointerLeave);
     };
-  }, [activeModule, theme, params, inputSource, showCalibration, hardwareMode, signalDrift]);
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
+      className="signal-canvas absolute inset-0 w-full h-full"
+      role="img"
+      aria-label={`${activeModule} visualization using the ${inputSource} signal source`}
       style={{ transition: 'opacity 0.5s' }}
     />
   );

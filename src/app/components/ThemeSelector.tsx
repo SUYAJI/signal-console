@@ -214,8 +214,11 @@ export function ThemeSelector({ activeTheme, mode, onSelect, onToggleMode }: The
 
       {/* Light / Dark toggle */}
       <button
+        type="button"
+        aria-pressed={isLight}
+        aria-label={`Activate ${isLight ? 'dark' : 'light'} chromatic mode`}
         onClick={onToggleMode}
-        className="flex items-center gap-3 py-2 px-2 rounded-sm mb-1"
+        className="console-theme-button flex items-center gap-3 py-2 px-2 rounded-sm mb-1"
         style={{
           background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
           border: `1px solid ${isLight ? '#d0d0d0' : '#333'}`,
@@ -266,8 +269,11 @@ export function ThemeSelector({ activeTheme, mode, onSelect, onToggleMode }: The
         return (
           <button
             key={name}
+            type="button"
+            aria-pressed={active}
+            aria-label={`Select ${name} theme`}
             onClick={() => onSelect(name)}
-            className="flex items-center gap-3 py-2 px-2 rounded-sm"
+            className="console-theme-button flex items-center gap-3 py-2 px-2 rounded-sm"
             style={{
               background: active
                 ? isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.04)'
