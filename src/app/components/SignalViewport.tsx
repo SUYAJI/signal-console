@@ -163,7 +163,6 @@ export function SignalViewport({ activeModule, theme, params, inputSource = 'GRI
       const isSynth = hardwareMode === 'DIGITAL SYNTH TERMINAL';
       const lineWidthMult = isSoviet ? 1.8 : (isSynth ? 0.6 : 1);
 
-      // --- Substrate Background based on Input Source ---
       if (inputSource === 'GRID') {
         ctx.strokeStyle = theme.gridLine;
         ctx.lineWidth = isSoviet ? 1.5 : (isSynth ? 0.3 : 0.5);
@@ -215,7 +214,6 @@ SIGNAL: ACQUIRING
       const dec = params.decay / 100;
       const freq = (params.frequency / 100) * 6 + 0.5;
 
-      // Introduce both slow drift and high-frequency jitter
       const driftX = signalDrift ? Math.sin(t * 0.4) * 4 : 0;
       const driftY = signalDrift ? Math.cos(t * 0.3) * 3 : 0;
       const jitterX = signalDrift ? driftX + (Math.random() - 0.5) * (freq * 1.8) : 0;
@@ -230,7 +228,6 @@ SIGNAL: ACQUIRING
         const my = mouseRef.current.y;
         const cursorRadius = 100;
 
-        // Precompute edge fade gradient (radial vignette)
         const cx = w / 2;
         const cy = h / 2;
         const maxEdgeDist = Math.sqrt(cx * cx + cy * cy);
@@ -240,13 +237,11 @@ SIGNAL: ACQUIRING
           const baseX = ((seed * 137.508 + t * 8 * (1 - dec)) % w + w) % w;
           const baseY = ((seed * 97.324 + Math.sin(t * freq + i * ph * 0.1) * 30) % h + h) % h;
 
-          // Edge fade: distance from center normalized
           const edgeDx = baseX - cx;
           const edgeDy = baseY - cy;
           const edgeDist = Math.sqrt(edgeDx * edgeDx + edgeDy * edgeDy);
           const edgeFade = Math.max(0, 1 - (edgeDist / maxEdgeDist) * 1.3);
 
-          // Cursor proximity: enlarge dots near mouse
           const mdx = baseX - mx;
           const mdy = baseY - my;
           const mouseDist = Math.sqrt(mdx * mdx + mdy * mdy);
@@ -267,7 +262,6 @@ SIGNAL: ACQUIRING
           ctx.globalAlpha = Math.min(1, alpha);
           ctx.fill();
 
-          // Glow ring near cursor
           if (cursorInfluence > 0.3) {
             ctx.beginPath();
             ctx.arc(baseX, baseY, r + 2, 0, Math.PI * 2);
@@ -285,7 +279,6 @@ SIGNAL: ACQUIRING
         const count = Math.floor(12 + dens * 50);
         const connectionDist = 40 + ph * 80 / (Math.PI * 2); // PHASE controls max connection distance
 
-        // Generate nodes with organic motion
         for (let i = 0; i < count; i++) {
           const seed1 = ((i * 1.618033988 * 137.508) % 1);
           const seed2 = ((i * 1.618033988 * 97.324) % 1);
@@ -296,7 +289,6 @@ SIGNAL: ACQUIRING
           nodes.push([x, y]);
         }
 
-        // Draw connections with DECAY-based opacity falloff per distance
         ctx.lineWidth = 0.8 * lineWidthMult;
         for (let i = 0; i < nodes.length; i++) {
           for (let j = i + 1; j < nodes.length; j++) {
@@ -305,11 +297,9 @@ SIGNAL: ACQUIRING
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < connectionDist) {
               const distRatio = dist / connectionDist;
-              // DECAY controls how aggressively lines fade with distance
               const fadeExponent = 0.5 + dec * 3;
               const lineAlpha = Math.pow(1 - distRatio, fadeExponent) * (0.15 + dec * 0.5);
 
-              // Cursor brightening for nearby connections
               const midX = (nodes[i][0] + nodes[j][0]) / 2;
               const midY = (nodes[i][1] + nodes[j][1]) / 2;
               const mDist = Math.sqrt((midX - mx) ** 2 + (midY - my) ** 2);
@@ -325,7 +315,6 @@ SIGNAL: ACQUIRING
           }
         }
 
-        // Draw nodes
         nodes.forEach(([x, y]) => {
           const mDist = Math.sqrt((x - mx) ** 2 + (y - my) ** 2);
           const cursorInfluence = Math.max(0, 1 - mDist / cursorRadius);
@@ -360,7 +349,6 @@ SIGNAL: ACQUIRING
           const yBase = spacing * (l + 1);
           ctx.beginPath();
 
-            // Alternating line thickness for depth
           const isHeavy = l % 4 === 0;
           ctx.lineWidth = (isHeavy ? 1.5 : 0.8) * lineWidthMult;
 
@@ -370,7 +358,6 @@ SIGNAL: ACQUIRING
             const phaseOffset = t * (0.5 + ph * 1.5);
             const waveAmp = 4 + dec * 25;
 
-            // Layered sine distortion
             const sine1 = Math.sin(x * waveFreq + phaseOffset + l * 0.4) * waveAmp;
             const sine2 = Math.sin(x * waveFreq * 2.3 + phaseOffset * 0.7 - l * 0.2) * waveAmp * 0.3;
             const sine3 = Math.sin(x * waveFreq * 0.4 + phaseOffset * 1.3 + l * 0.8) * waveAmp * 0.5;
@@ -394,10 +381,8 @@ SIGNAL: ACQUIRING
             else ctx.lineTo(x, y);
           }
 
-          // Edge fade for each line
           const edgeFade = Math.min(1, Math.min(yBase, h - yBase) / (h * 0.15));
 
-          // Cursor proximity brightness
           const lineMidDist = Math.abs(yBase - my);
           const cursorBright = Math.max(0, 1 - lineMidDist / cursorRadius) * 0.4;
 
@@ -405,7 +390,6 @@ SIGNAL: ACQUIRING
           ctx.globalAlpha = Math.min(1, (0.1 + dec * 0.4 + cursorBright) * edgeFade);
           ctx.stroke();
 
-          // Glow pass for heavy lines
           if (isHeavy && edgeFade > 0.3) {
             ctx.shadowColor = theme.accentGlow;
             ctx.shadowBlur = isSoviet ? 8 : 4;
@@ -415,7 +399,6 @@ SIGNAL: ACQUIRING
           }
         }
 
-        // Horizontal reference line at center
         ctx.beginPath();
         ctx.moveTo(0, h / 2);
         ctx.lineTo(w, h / 2);
@@ -429,7 +412,6 @@ SIGNAL: ACQUIRING
         const mx = mouseRef.current.x;
         const my = mouseRef.current.y;
         
-        // Add current mouse position if it's within canvas
         if (mx > -100 && my > -100) {
           cursorHistoryRef.current.push({ x: mx, y: my, t });
         }
@@ -437,7 +419,6 @@ SIGNAL: ACQUIRING
         // DECAY controls persistence/history length
         const maxAge = 0.2 + dec * 4.8; // 0.2s to 5s
         
-        // Filter out old positions
         cursorHistoryRef.current = cursorHistoryRef.current.filter(pt => (t - pt.t) < maxAge);
         
         // DENSITY controls spacing between echoes
@@ -445,7 +426,6 @@ SIGNAL: ACQUIRING
         
         let lastDrawn: {x: number, y: number} | null = null;
         
-        // Draw the echoes
         for (let i = 0; i < cursorHistoryRef.current.length; i++) {
           const pt = cursorHistoryRef.current[i];
           
@@ -464,7 +444,6 @@ SIGNAL: ACQUIRING
           let radius = 8 + progress * (20 + (params.phase / 100) * 40) + pulse; // PHASE expands echoes; FREQUENCY controls their pulse rate
           if (inputSource === 'IMAGE INPUT') radius *= (b * 1.5 + 0.2);
           
-          // Draw Outer Ring
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, radius, 0, Math.PI * 2);
           ctx.strokeStyle = theme.waveStroke;
@@ -472,7 +451,6 @@ SIGNAL: ACQUIRING
           ctx.globalAlpha = alpha * (0.4 + dec * 0.6);
           ctx.stroke();
           
-          // Draw Crosshair
           ctx.beginPath();
           ctx.moveTo(pt.x - radius - 4, pt.y); ctx.lineTo(pt.x - radius + 4, pt.y);
           ctx.moveTo(pt.x + radius - 4, pt.y); ctx.lineTo(pt.x + radius + 4, pt.y);
@@ -482,7 +460,6 @@ SIGNAL: ACQUIRING
           ctx.globalAlpha = alpha * 0.8;
           ctx.stroke();
           
-          // Inner core
           ctx.beginPath();
           ctx.arc(pt.x, pt.y, radius * 0.2, 0, Math.PI * 2);
           ctx.fillStyle = theme.led;
@@ -514,14 +491,12 @@ SIGNAL: ACQUIRING
             const dist = Math.sqrt(dx * dx + dy * dy);
             const cursorInfluence = Math.max(0, 1 - dist / cursorRadius);
             
-            // Distort position
             const waveX = Math.sin(t * freq * 2 + r * ph * 3 + c) * (2 + dec * 15) * (1 + cursorInfluence * 3);
             const waveY = Math.cos(t * freq * 1.5 + c * ph * 3 + r) * (2 + dec * 15) * (1 + cursorInfluence * 3);
             
             const x = baseX + waveX;
             const y = baseY + waveY;
             
-            // Distort char selection
             let charSpeed = t * 3 + r * 7 + c * 3;
             charSpeed += cursorInfluence * 20; // Cursor speeds up char rotation
             let ci = Math.floor(charSpeed % chars.length);
@@ -537,7 +512,6 @@ SIGNAL: ACQUIRING
             
             ctx.fillText(chars[ci], x, y);
             
-            // Add a small box around highly influenced characters
             if (cursorInfluence > 0.3) {
                ctx.strokeStyle = theme.accentGlow;
                ctx.lineWidth = 1;
@@ -548,7 +522,6 @@ SIGNAL: ACQUIRING
         }
       }
 
-      // Calibration overlay
       if (showCalibration) {
         ctx.strokeStyle = theme.accent;
         ctx.fillStyle = theme.accent;
@@ -556,7 +529,6 @@ SIGNAL: ACQUIRING
         ctx.globalAlpha = hardwareMode === 'SOVIET RADAR' ? 0.6 : 0.4;
         
         if (hardwareMode === 'SOVIET RADAR') {
-           // Circular radar sweep
            ctx.beginPath();
            ctx.arc(w/2, h/2, Math.min(w,h)/2.2, 0, Math.PI * 2);
            ctx.stroke();
@@ -564,14 +536,12 @@ SIGNAL: ACQUIRING
            ctx.arc(w/2, h/2, Math.min(w,h)/3.5, 0, Math.PI * 2);
            ctx.stroke();
            
-           // Radar sweep line
            const sweepAngle = (t * 2) % (Math.PI * 2);
            ctx.beginPath();
            ctx.moveTo(w/2, h/2);
            ctx.lineTo(w/2 + Math.cos(sweepAngle) * Math.min(w,h)/2.2, h/2 + Math.sin(sweepAngle) * Math.min(w,h)/2.2);
            ctx.stroke();
            
-           // Glow for radar sweep
            ctx.beginPath();
            ctx.moveTo(w/2, h/2);
            ctx.arc(w/2, h/2, Math.min(w,h)/2.2, sweepAngle - 0.2, sweepAngle, false);
@@ -580,7 +550,6 @@ SIGNAL: ACQUIRING
            ctx.globalAlpha = 0.2;
            ctx.fill();
         } else {
-          // Center crosshairs
           ctx.beginPath();
           if (hardwareMode === 'APOLLO AVIONICS') ctx.setLineDash([4, 4]);
           ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h);
@@ -588,7 +557,6 @@ SIGNAL: ACQUIRING
           ctx.stroke();
           ctx.setLineDash([]);
           
-          // Center reticle
           ctx.beginPath();
           ctx.arc(w / 2, h / 2, 30, 0, Math.PI * 2);
           ctx.stroke();
@@ -597,7 +565,6 @@ SIGNAL: ACQUIRING
           ctx.fill();
         }
 
-        // Measurement ticks
         ctx.globalAlpha = 0.4;
         ctx.beginPath();
         for(let i = 0; i < w; i += 50) {
@@ -608,7 +575,6 @@ SIGNAL: ACQUIRING
         }
         ctx.stroke();
 
-        // Corner brackets
         if (hardwareMode !== 'SOVIET RADAR') {
           const cl = 20; 
           ctx.lineWidth = hardwareMode === 'DIGITAL SYNTH TERMINAL' ? 1 : 2;
@@ -620,7 +586,6 @@ SIGNAL: ACQUIRING
           ctx.stroke();
         }
 
-        // Text markers
         ctx.globalAlpha = 0.7;
         ctx.font = hardwareMode === 'DIGITAL SYNTH TERMINAL' ? '9px monospace' : '10px monospace';
         ctx.textAlign = 'left';
@@ -632,15 +597,12 @@ SIGNAL: ACQUIRING
         ctx.globalAlpha = 1;
       }
       
-      // Hardware-specific ambient overlays
       if (hardwareMode === 'APOLLO AVIONICS') {
-        // Faint CRT scanlines
         ctx.globalAlpha = 0.05;
         ctx.fillStyle = '#fff';
         for (let y = 0; y < h; y += 3) {
           ctx.fillRect(0, y, w, 1);
         }
-        // CRT Vignette
         const gradient = ctx.createRadialGradient(w/2, h/2, h/3, w/2, h/2, h*0.8);
         gradient.addColorStop(0, 'rgba(0,0,0,0)');
         gradient.addColorStop(1, 'rgba(0,0,0,0.5)');
@@ -648,7 +610,6 @@ SIGNAL: ACQUIRING
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
       } else if (hardwareMode === 'DIGITAL SYNTH TERMINAL') {
-        // Pixel grid
         ctx.globalAlpha = 0.02;
         ctx.fillStyle = theme.accent;
         for (let y = 0; y < h; y += 4) ctx.fillRect(0, y, w, 1);

@@ -1,3 +1,3 @@
-This file is retained from the original Figma Make export.
+Signal Console began as a Figma Make export.
 
-The generated shadcn/ui components and the remote Unsplash default image were removed during the Signal Console baseline cleanup. The project now bundles its own sample image and does not include third-party visual assets.
+The export's shadcn/ui components and remote Unsplash default image were removed. The project bundles its own sample image and does not include third-party visual assets.

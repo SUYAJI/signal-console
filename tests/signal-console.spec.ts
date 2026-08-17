@@ -18,7 +18,7 @@ test.describe('Signal Console', () => {
 
     for (const engine of ['DOT FIELD', 'NODE MESH', 'SCANLINE FIELD', 'ECHO TRAILS', 'TYPE DISTORTION']) {
       await page.getByRole('radio', { name: engine }).click();
-      await expect(page.getByText(`${engine} — SIGNAL MONITOR`)).toBeVisible();
+      await expect(page.getByText(`${engine} | SIGNAL MONITOR`)).toBeVisible();
     }
 
     for (const source of ['GRID', 'NOISE FIELD', 'TEXT SAMPLE', 'IMAGE INPUT']) {

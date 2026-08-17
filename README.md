@@ -1,12 +1,12 @@
 
 # Signal Console
 
-Signal Console is an interactive visual signal laboratory: a browser-based control panel for exploring procedural patterns, sources, parameters, hardware modes, and chromatic themes.
+Signal Console is a browser-based control panel for exploring procedural patterns, sources, parameters, hardware modes, and chromatic themes.
 
 [LIVE DEMO](https://signal-console-seven.vercel.app/)
 ## Overview
 
-The console pairs tactile controls with a Canvas-rendered signal monitor. It is a self-contained front-end experiment, not a client project or production service.
+The console pairs tactile controls with a Canvas-rendered signal monitor. It runs entirely in the browser.
 
 ### Systems
 
@@ -31,7 +31,7 @@ Image Input starts with the bundled `/signal-sample.svg`. Remote image URLs must
 
 ## Accessibility and responsive behavior
 
-The controls use native buttons, radio semantics, pressed state, labelled sliders, keyboard parameter controls, visible focus states, and touch-friendly pointer handling. The layout reflows from a three-panel console to compact stacked views, and the renderer honors reduced-motion preferences and pauses work when the document is hidden.
+Controls use native buttons, radio semantics, pressed state, labelled sliders, keyboard parameter controls, visible focus states, and touch-friendly pointer handling. The layout reflows from a three-panel console to compact stacked views. The renderer respects reduced-motion preferences and pauses while the document is hidden.
 
 ## Local development
 
@@ -58,5 +58,5 @@ npm audit
 
 ## Provenance
 
-Signal Console began as a Figma Make prototype. Its exported application was audited and converted into this conventional React/TypeScript/Vite repository; generated scaffold and unused dependencies were removed. Interaction behavior, responsive layout, accessibility, and the Canvas lifecycle were subsequently hardened. The retained source and attribution record are described in [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+Signal Console began as a Figma Make prototype. The export was converted into this React/TypeScript/Vite repository, with generated scaffold and unused dependencies removed. Later work covered interaction behavior, responsive layout, accessibility, and Canvas lifecycle handling. [ATTRIBUTIONS.md](ATTRIBUTIONS.md) records the retained attribution.
   

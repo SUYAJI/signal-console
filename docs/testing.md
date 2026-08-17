@@ -1,8 +1,8 @@
 # Testing
 
-## Fast release check
+## Release check
 
-Run the complete fast gate with:
+Run the fast checks with:
 
 ```bash
 npm run check
@@ -24,9 +24,9 @@ The unit suite covers the fixed engine/source/hardware catalogs, default paramet
 npm run test:e2e
 ```
 
-Playwright starts Vite and runs Chromium coverage for startup browser errors and warnings, engine/source selection, image-input defaults, keyboard parameters, hardware/theme switching, pointer-reactive guidance, reduced-motion emulation, and a compact mobile viewport. Reports and failure artifacts are intentionally ignored by Git.
+Playwright starts Vite and runs Chromium checks for startup browser errors and warnings, engine/source selection, image-input defaults, keyboard parameters, hardware/theme switching, pointer-reactive guidance, reduced-motion emulation, and a compact mobile viewport. Reports and failure artifacts are ignored by Git.
 
-The automated suite does not claim to test a browser's hidden-tab animation scheduling; that behavior is covered in the renderer by the `document.hidden` check and should be included in manual browser review when relevant.
+The suite does not simulate hidden-tab animation scheduling. The renderer checks `document.hidden`; include it in manual browser review when relevant.
 
 ## Manual review
 

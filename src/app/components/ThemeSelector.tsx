@@ -2,7 +2,6 @@
 export interface PanelTheme {
   name: string;
   mode: 'dark' | 'light';
-  // Viewport / signal colors
   accent: string;
   accentDim: string;
   accentGlow: string;
@@ -11,7 +10,6 @@ export interface PanelTheme {
   waveStroke: string;
   label: string;
   labelActive: string;
-  // Hardware panel colors
   panelBg: string;
   panelBgAlt: string;
   panelBorder: string;
@@ -185,7 +183,7 @@ export function getTheme(name: string, mode: 'dark' | 'light'): PanelTheme {
 
 export const THEME_NAMES = THEME_BASES.map((t) => t.name);
 
-// For backwards compat
+// Kept for consumers that use the original dark-theme export.
 export const THEMES = THEME_BASES.map((t) => getTheme(t.name, 'dark'));
 
 interface ThemeSelectorProps {
@@ -212,7 +210,6 @@ export function ThemeSelector({ activeTheme, mode, onSelect, onToggleMode }: The
         <span>Chromatic Mode</span>
       </div>
 
-      {/* Light / Dark toggle */}
       <button
         type="button"
         aria-pressed={isLight}

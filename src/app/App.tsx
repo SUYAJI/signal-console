@@ -81,7 +81,7 @@ export default function App() {
           </aside>
 
           <section className="console-section viewport-panel" style={{ ...getSubPanelStyle() }} aria-label="Signal visualization and source controls">
-            <div className="console-monitor-title" style={{ color: theme.textSecondary }}>{activeModule} — SIGNAL MONITOR</div>
+            <div className="console-monitor-title" style={{ color: theme.textSecondary }}>{activeModule} | SIGNAL MONITOR</div>
             <div className="signal-viewport" style={{ ...getViewportContainerStyle() }}>
               <SignalViewport activeModule={activeModule} theme={theme} params={parameters} inputSource={inputSource} imageUrl={imageUrl} showCalibration={showCalibration} hardwareMode={hardwareMode} signalDrift={signalDrift} />
               {isPointerReactive && <div className="signal-interaction-hint" aria-hidden="true" style={{ color: theme.textSecondary, borderColor: theme.divider }}><span className="hint-pointer">MOVE POINTER THROUGH FIELD</span><span className="hint-touch">DRAG ACROSS FIELD</span></div>}
